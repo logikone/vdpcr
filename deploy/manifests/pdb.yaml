@@ -1,0 +1,10 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: vdpcr
+  namespace: vdpcr
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vdpcr
+  minAvailable: 2

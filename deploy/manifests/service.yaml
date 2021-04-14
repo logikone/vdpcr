@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vdpcr
+  namespace: vdpcr
+spec:
+  ports:
+    - port: 8080
+      name: http-metrics
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: vdpcr
