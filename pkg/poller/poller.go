@@ -1,48 +1,26 @@
 package poller
 
 import (
-	"context"
 	"sync"
-	"time"
 
-	"github.com/go-logr/logr"
+	"github.com/apex/log"
 	"github.com/go-resty/resty/v2"
 
 	"github.com/logikone/vdpcr/pkg/metrics"
 )
 
-var urls = []string{
-	"https://httpstat.us/200",
-	"https://httpstat.us/503",
-}
-
 type Poller struct {
-	Client   *resty.Client
-	Interval *time.Duration
-	Log      logr.Logger
+	Client *resty.Client
+	Log    log.Interface
+	URLs   []string
 }
 
-func (p Poller) Start(ctx context.Context) {
-	t := time.Tick(*p.Interval)
-
-	for {
-		select {
-		case <-t:
-			if err := p.poll(); err != nil {
-				p.Log.Error(err, "error polling")
-			}
-		case <-ctx.Done():
-			return
-		}
-	}
-}
-
-func (p Poller) poll() error {
+func (p Poller) Poll() {
 	wg := sync.WaitGroup{}
 
-	p.Log.Info("polling ...")
+	p.Log.Debug("polling ...")
 
-	for _, url := range urls {
+	for _, url := range p.URLs {
 		wg.Add(1)
 
 		go func(u string) {
@@ -50,7 +28,7 @@ func (p Poller) poll() error {
 			res, err := p.Client.R().Get(u)
 
 			if err != nil {
-				p.Log.Error(err, "error making request", "url", u)
+				p.Log.WithError(err).WithField("url", u).Error("error making request")
 			}
 
 			responseMetrics := metrics.ResponseTime.With(map[string]string{
@@ -74,6 +52,4 @@ func (p Poller) poll() error {
 	}
 
 	wg.Wait()
-
-	return nil
 }
