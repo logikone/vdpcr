@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/logfmt"
@@ -20,15 +21,19 @@ var (
 	addr     = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
 	logLevel = flag.String("log-level", "info", fmt.Sprintf("log level to set. (%s)",
 		strings.Join([]string{"debug", "error", "fatal", "info", "warn"}, ", ")))
+	timeout = flag.Duration("timeout", time.Second*10, "http client timeout")
 )
 
 func main() {
 	flag.Parse()
 	log.SetLevelFromString(*logLevel)
 
+	httpClient := resty.New()
+	httpClient.SetTimeout(*timeout)
+
 	http.Handle("/metrics", &handler.MetricsHandler{
 		Poller: poller.Poller{
-			Client: resty.New(),
+			Client: httpClient,
 			Log:    log.Log,
 			URLs: []string{
 				"https://httpstat.us/200",

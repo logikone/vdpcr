@@ -18,18 +18,26 @@ type Poller struct {
 func (p Poller) Poll() {
 	wg := sync.WaitGroup{}
 
-	p.Log.Debug("polling ...")
-
 	for _, url := range p.URLs {
 		wg.Add(1)
+
+		p.Log.
+			WithField("url", url).
+			Debug("polling")
 
 		go func(u string) {
 			defer wg.Done()
 			res, err := p.Client.R().Get(u)
-
 			if err != nil {
 				p.Log.WithError(err).WithField("url", u).Error("error making request")
 			}
+
+			p.Log.
+				WithFields(log.Fields{
+					"code":     res.StatusCode(),
+					"duration": res.Time(),
+				}).
+				Debug("status")
 
 			responseMetrics := metrics.ResponseTime.With(map[string]string{
 				"url": u,
