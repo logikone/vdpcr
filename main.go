@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,16 +11,19 @@ import (
 	"github.com/apex/log/handlers/logfmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	flag "github.com/spf13/pflag"
 
 	"github.com/logikone/vdpcr/pkg/handler"
 	"github.com/logikone/vdpcr/pkg/poller"
 )
 
 var (
-	addr     = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
-	logLevel = flag.String("log-level", "info", fmt.Sprintf("log level to set. (%s)",
-		strings.Join([]string{"debug", "error", "fatal", "info", "warn"}, ", ")))
-	timeout = flag.Duration("timeout", time.Second*10, "http client timeout")
+	addr           = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
+	defaultTargets = []string{"https://httpstat.us/200", "https://httpstat.us/503"}
+	logLevel       = flag.String("log-level", "info", fmt.Sprintf("log level to set. (%s)", strings.Join(validLogLevels, ", ")))
+	targets        = flag.StringArray("target", defaultTargets, "target(s) to scrape. can be specified multiple times")
+	timeout        = flag.Duration("timeout", time.Second*10, "http client timeout")
+	validLogLevels = []string{"debug", "error", "fatal", "info", "warn"}
 )
 
 func main() {
@@ -35,10 +37,7 @@ func main() {
 		Poller: poller.Poller{
 			Client: httpClient,
 			Log:    log.Log,
-			URLs: []string{
-				"https://httpstat.us/200",
-				"https://httpstat.us/503",
-			},
+			URLs:   *targets,
 		},
 		PromHandler: promhttp.Handler(),
 	})
