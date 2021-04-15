@@ -46,12 +46,7 @@ func (p Poller) Poll() {
 				"url": u,
 			})
 
-			if res.StatusCode() >= 200 && res.StatusCode() <= 399 {
-				statusMetric.Set(0)
-			} else {
-				statusMetric.Set(1)
-			}
-
+			statusMetric.Set(isUpOrDown(res.StatusCode()))
 			responseMetrics.Observe(float64(res.Time().Milliseconds()))
 
 			res.Time()
