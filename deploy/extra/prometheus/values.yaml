@@ -1,0 +1,117 @@
+alertmanager:
+  enabled: false
+
+configmapReload:
+  prometheus:
+    ## If false, the configmap-reload container will not be deployed
+    ##
+    enabled: true
+
+    ## configmap-reload container name
+    ##
+    name: configmap-reload
+
+    ## configmap-reload container image
+    ##
+    image:
+      repository: jimmidyson/configmap-reload
+      tag: v0.5.0
+      pullPolicy: IfNotPresent
+
+    ## Additional configmap-reload container arguments
+    ##
+    extraArgs: { }
+    ## Additional configmap-reload volume directories
+    ##
+    extraVolumeDirs: [ ]
+
+
+    ## Additional configmap-reload mounts
+    ##
+    extraConfigmapMounts: [ ]
+      # - name: prometheus-alerts
+    #   mountPath: /etc/alerts.d
+    #   subPath: ""
+    #   configMap: prometheus-alerts
+    #   readOnly: true
+
+
+    ## configmap-reload resource requests and limits
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ##
+    resources: { }
+  alertmanager:
+    ## If false, the configmap-reload container will not be deployed
+    ##
+    enabled: true
+
+    ## configmap-reload container name
+    ##
+    name: configmap-reload
+
+    ## configmap-reload container image
+    ##
+    image:
+      repository: jimmidyson/configmap-reload
+      tag: v0.5.0
+      pullPolicy: IfNotPresent
+
+    ## Additional configmap-reload container arguments
+    ##
+    extraArgs: { }
+    ## Additional configmap-reload volume directories
+    ##
+    extraVolumeDirs: [ ]
+
+
+    ## Additional configmap-reload mounts
+    ##
+    extraConfigmapMounts: [ ]
+      # - name: prometheus-alerts
+    #   mountPath: /etc/alerts.d
+    #   subPath: ""
+    #   configMap: prometheus-alerts
+    #   readOnly: true
+
+
+    ## configmap-reload resource requests and limits
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ##
+    resources: { }
+
+kubeStateMetrics:
+  ## If false, kube-state-metrics sub-chart will not be installed
+  ##
+  enabled: true
+
+## kube-state-metrics sub-chart configurable values
+## Please see https://github.com/kubernetes/kube-state-metrics/tree/master/charts/kube-state-metrics
+##
+# kube-state-metrics:
+
+nodeExporter:
+  enabled: false
+
+pushgateway:
+  enabled: false
+
+# adds additional scrape configs to prometheus.yml
+# must be a string so you have to add a | after extraScrapeConfigs:
+# example adds prometheus-blackbox-exporter scrape config
+extraScrapeConfigs:
+  - job_name: vdpcr
+    metrics_path: /metrics
+# - job_name: 'prometheus-blackbox-exporter'
+#   metrics_path: /probe
+#   params:
+#     module: [http_2xx]
+#   static_configs:
+#     - targets:
+#       - https://example.com
+#   relabel_configs:
+#     - source_labels: [__address__]
+#       target_label: __param_target
+#     - source_labels: [__param_target]
+#       target_label: instance
+#     - target_label: __address__
+#       replacement: prometheus-blackbox-exporter:9115

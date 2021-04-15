@@ -9,6 +9,8 @@ spec:
       app.kubernetes.io/name: vdpcr
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: vdpcr
     spec:
