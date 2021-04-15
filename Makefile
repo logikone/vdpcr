@@ -10,7 +10,7 @@ vet:
 	@go vet $(GO_MODULES)
 
 test:
-	@go test $(GO_MODULES)
+	@go test -v $(GO_MODULES)
 
 docker: fmt vet test
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
